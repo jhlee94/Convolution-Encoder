@@ -38,19 +38,26 @@ void Encoder::encode(const char* message) {
 	size_t size = strlen(message);
 	
 	string s;
+	bool* hour, *minute, *second;
+	hour = &registers[0];
+	minute = &registers[1];
+	second = &registers[2];
+
 	for (int i = 0; i < size; i++) {
-	//XOR1
-		int xor1 = TO_INT(message[i]) != registers[0];
+		// XOR encoding step here
+		s = s + to_string(XOR().result(TO_INT(message[i]), *hour)) + to_string(XOR().result(*minute, *second)) + ' ';
 
-	//XOR2
-		int xor2 = registers[1] != registers[2];
+		////XOR1
+		//	int xor1 = registers[0] != registers[1];
 
-		s = s + to_string(xor2) + to_string(xor1);
+		////XOR2
+		//	int xor2 = TO_INT(message[i]) != registers[0];
+
+		//	s = s + to_string(xor2) + to_string(xor1) + ' ';
 
 		bool input_bit = TO_INT(message[i]);
 		shift(registers, input_bit);
 	}
-	
 	cout << s << endl;
 }
 

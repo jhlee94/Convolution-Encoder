@@ -116,7 +116,6 @@
   <ItemGroup>
     <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="XOR.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

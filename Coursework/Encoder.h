@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <bitset> 
+#include "XOR.h"
 
 using namespace std;
 
@@ -22,6 +23,6 @@ protected:
 
 private:
 	bool* registers;
-
+	XOR gate;
 };
 
