@@ -2,7 +2,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <bitset> 
+#include <bitset>
+#include <vector>
 #include "XOR.h"
 
 using namespace std;
@@ -11,6 +12,7 @@ class Encoder
 {
 public:
 	Encoder();
+	Encoder(int gate, int reg);
 	~Encoder();
 	
 	void read_file(const char* filename);
@@ -18,11 +20,18 @@ public:
 	void encode(const char* message);
 	void shift(bool*& registers, bool &input_bit);
 
-	const int MAX_REGISTER_NUM = 3;
+	void generate_seq(string &str, string sequence);
+
+	const int DEFAULT_REGISTER_NUM = 3;
 protected:
 
 private:
+	void reset();
+
 	bool* registers;
-	XOR gate;
+	int gates_num;
+	int reg_num;
+	vector<XOR> gates;
+	vector<string> sequences;
 };
 

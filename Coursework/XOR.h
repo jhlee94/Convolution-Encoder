@@ -12,6 +12,8 @@ public:
 
 	bool result(int first, int second) { return first != second; }
 	
+	bool process();
+
 	std::vector<int> getInput() {
 		return inputs;
 	}
