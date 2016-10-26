@@ -15,17 +15,18 @@ public:
 	Encoder(int gate, int reg);
 	~Encoder();
 	
-	void read_file(const char* filename);
-	void write_file(const char* filename, const char* message);
 	void encode(const char* message);
-	void shift(bool*& registers, bool &input_bit);
-
-	void generate_seq(string &str, string sequence);
+	string read_file(const char* filename);
 
 	const int DEFAULT_REGISTER_NUM = 3;
+	void compare();
+
 protected:
+	void generate_seq(string &str, string sequence);
+	void write_file(const char* filename, const char* message);
 
 private:
+	void shift(bool*& registers, bool input_bit);
 	void reset();
 
 	bool* registers;

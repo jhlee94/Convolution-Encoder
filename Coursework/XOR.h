@@ -5,19 +5,24 @@ class XOR
 {
 public:
 	XOR() {
-		leg_num = 0;
+		leg_num = 2;
 	}
-	XOR(int &leg_num, std::vector<int> inputs) : leg_num(leg_num), inputs(inputs){};
+	XOR(int &leg_num) : leg_num(leg_num) {};
 	~XOR() {};
 
-	bool result(int first, int second) { return first != second; }
-	
-	bool process();
-
-	std::vector<int> getInput() {
-		return inputs;
+	void add(int input) {
+		result += input;
 	}
-private:
+	
+	bool process() {
+		return result % 2;
+	}
+
+	void empty() {
+		result = 0;
+	}
+
 	int leg_num;
-	std::vector<int> inputs;
+private:
+	int result;
 };
