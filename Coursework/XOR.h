@@ -1,7 +1,7 @@
+// Author: Jong Hoon Lee, Student Number: 130329288
 #pragma once
 #include <vector>
 #include <string>
-#define TO_INT(x) (int)x - 48
 
 class XOR
 {
@@ -21,7 +21,7 @@ public:
 	}
 
 	bool process(int a, int b) {
-		return (a + b) % 2;
+		return (a + b) % 2; // simple modular-2 addition (XOR)
 	}
 
 	void reset() {

@@ -240,3 +240,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/Coursework/data/decode
+/Coursework/data/encode
+/Coursework/data/error

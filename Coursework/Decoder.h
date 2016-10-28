@@ -1,8 +1,11 @@
+// Author: Jong Hoon Lee, Student Number: 130329288
 #pragma once
 #include <vector>
 #include <string>
-#include <map>
+#include <fstream>
 #include <iostream>
+#include <time.h>
+#include "General.h"
 #include "XOR.h"
 
 using namespace std;
@@ -22,17 +25,26 @@ public:
 	Decoder(int reg_num);
 	~Decoder();
 
-	void decode(string msg);
+	void decode(string msg, string filename);
 	void generate_states(string &sequence);
 	void print_decoded_message();
+	void load(vector<string> &sequences);
+	
+
+	string read_file(const char* filename);
+	void write_file(const char* filename, const char* message);
+	void inject_error(vector<string> &sequences);
+
 	void reset();
 
 	vector<string*> state_map;
+	vector<string> messages;
+	vector<string> err_msgs;
+	string sequence;
 	string answer;
 
 private:
 	void process(Node **leaf, int key, int metric, string &state, string msg);
-	void inject_error();
 
 	void generate_seq(unsigned int n);
 	void print_decoded_message(Node* p);

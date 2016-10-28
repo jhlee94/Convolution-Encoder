@@ -1,6 +1,7 @@
+// Author: Jong Hoon Lee, Student Number: 130329288
 #include "Decoder.h"
 
-Decoder::Decoder()
+Decoder::Decoder() // Default constructor
 {
 	reg_num = DEFAULT_REG_NUM;
 	root = new Node();
@@ -25,12 +26,29 @@ Decoder::~Decoder()
 	terminate_tree(root);
 }
 
-
-void Decoder::decode(string msg) {
-	process(&root, -1, -1, state_map.at(0)[0] , msg);
+void Decoder::load(vector<string> &sequences) {
+	for (int i = 0; i < sequences.size(); i++) {
+		string filename = ENCODE_FILENAME(i);
+		messages.push_back(read_file(filename.c_str()));
+	}
+	inject_error(sequences);
 }
 
 
+void Decoder::decode(string msg, string filename) {
+	process(&root, -1, -1, state_map.at(0)[0] , msg);
+	print_decoded_message();
+	//cout << answer << endl;
+	write_file(filename.c_str(), answer.c_str());
+}
+
+/**
+*	Trellis Diagram & Viterbi algorithm approach to decode
+*	the encoded msg. This algorithm utilises pre-generated state map
+*	to quickly compute the output, new state, and the hamming distance.
+*	Trasversing is achieved through recursion and in order to limit the
+*	number of nodes, hard-decision is applied.
+*/
 void Decoder::process(Node **leaf, int key, int metric, string &state, string msg) {
 	string* state_ptr;
 
@@ -63,6 +81,8 @@ void Decoder::process(Node **leaf, int key, int metric, string &state, string ms
 		one_output = state_ptr[4];
 
 		metric_one_temp = calc_hamming_distance(one_output, enc_msg_bit);
+
+		// hard-decision: dropping '1' node if the hamming distance is smaller or equal
 		if (metric_zero_temp <= metric_one_temp) {
 			process(&((*leaf)->zero), 0, metric_zero_temp, new_zero_state, msg.substr(2, msg.length() - 1));
 		}
@@ -89,6 +109,7 @@ void Decoder::reset() {
 	answer = "";
 }
 
+// finding state in the state map
 string* Decoder::find(string state) {
 	for (int i = 0; i < state_map.size(); i++) {
 		if (!state_map.at(i)[0].compare(state)) {
@@ -98,11 +119,43 @@ string* Decoder::find(string state) {
 	return NULL;
 }
 
-void Decoder::inject_error() {
-	
+// Error injection, algorithm from the coursework specification
+void Decoder::inject_error(vector<string> &sequences) {
+	srand(time(NULL));
+	int random_bit, random_var;
+	err_msgs.clear();
+	for (int i = 0; i < messages.size(); i++) {
+		bool burst = false;
+		int burst_counter = 0;
+		string err_msg = messages.at(i);
+		for(int j = 0; j < err_msg.length(); ++j) {
+			if (burst) {
+				err_msg[j] = TO_CHAR((rand() % 100) % 2);
+				burst_counter++;
+				if (burst_counter > 4) {
+					burst = false;
+					burst_counter = 0;
+				}
+			}
+			else {
+				random_var = (rand() % 21);
+				if (random_var > 18) burst = true;
+			}
+			j++;
+		}
+		string filename = ERR_ENCODE_FILENAME(i);
+		write_file(filename.c_str(), err_msg.c_str());
+		err_msgs.push_back(err_msg);
+	}
 }
 
+/*	Generating all the states and its corresponding Trellis data.
+*	This function utilises pre-generated state permutations from (generate_seq)
+*	and the output format follows:
+*	string[] = {state, new state when input is 0, output when input is 0, new state when input is 1, output when input 1}
+*/
 void Decoder::generate_states(string &sequence) {
+	this->sequence = sequence;
 	generate_seq(reg_num);
 	string inputs;
 
@@ -136,16 +189,35 @@ void Decoder::generate_states(string &sequence) {
 	}
 }
 
+string Decoder::read_file(const char* filename) {
+	string message;
+	ifstream infile(filename);
+	if (infile.is_open()) {
+		for (string line; getline(infile, line);) {
+			message += line;
+		}
+		infile.close();
+	}
+	return message;
+}
+
+void Decoder::write_file(const char* filename, const char* message) {
+	ofstream outfile;
+	outfile.open(filename);
+
+	outfile << message << endl;
+	outfile.close();
+}
+
 void Decoder::generate_seq(unsigned int n) {
 	string s;
 	for (int i = 0; i < pow(2, n); i++) {
 		string *state = new string[5];
 		convertToBinary(i, state[0]);
-		state[0] = string(n - state[0].length(), '0').append(state[0]);
+		state[0] = string(n - state[0].length(), '0').append(state[0]); // append 0 to fill up the length, i.e. 2(10) = 10(2) -> 010 (depends on n) 
 		state_map.push_back(state);
 	}
 }
-
 
 void Decoder::convertToBinary(int n, string &sequence) {
 	if (n / 2 != 0) {
@@ -153,7 +225,6 @@ void Decoder::convertToBinary(int n, string &sequence) {
 	}
 	sequence += to_string(n % 2);
 }
-
 
 int Decoder::calc_hamming_distance(string &a, string &b) {
 	int count = 0;
@@ -183,7 +254,6 @@ void Decoder::print_decoded_message(Node* p)
 {
 	if (p != NULL) {
 		if (p != root) {
-			std::cout << p->key << " ";
 			answer += to_string(p->key);
 		}
 		
