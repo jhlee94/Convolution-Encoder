@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#define TO_INT(x) (int)x - 48
+
 class XOR
 {
 public:
@@ -18,7 +20,11 @@ public:
 		return result % 2;
 	}
 
-	void empty() {
+	bool process(int a, int b) {
+		return (a + b) % 2;
+	}
+
+	void reset() {
 		result = 0;
 	}
 

@@ -1,6 +1,4 @@
 #include "Encoder.h"
-#define TO_INT(x) (int)x - 48
-#define TO_CHAR(x) to_string(x +48);
 
 
 Encoder::Encoder()
@@ -11,11 +9,18 @@ Encoder::Encoder()
 	}
 	reg_num = DEFAULT_REGISTER_NUM;
 
+	total_leg_count = 0;
+	for (int i = 0; i < DEFAULT_GATE_NUM; i++) {
+		XOR gate;
+		gates.push_back(gate);
+		total_leg_count += gate.leg_num;
+	}
+
 	string permutations;
 	for (int i = 0; i < reg_num + 1; i++) {
 		permutations = permutations + to_string(i);
 	}
-	generate_seq(permutations, "");
+	generate_seq(permutations, total_leg_count, "");
 }
 
 Encoder::Encoder(int gate, int reg) :
@@ -25,15 +30,21 @@ Encoder::Encoder(int gate, int reg) :
 	for (int i = 0; i < reg_num; i++) {
 		registers[i] = false;
 	}
-
+	total_leg_count = 0;
 	for (int i = 0; i < gates_num; i++) {
-		gates.push_back(XOR());
+		XOR gate;
+		if(i) gate.leg_num = 3;
+		else gate.leg_num = 2;
+
+		gates.push_back(gate);
+		total_leg_count += gate.leg_num;
 	}
+
 	string permutations;
 	for (int i = 0; i < reg_num + 1; i++) { // change this so that it depends on total number of legs
 		permutations = permutations + to_string(i);
 	}
-	generate_seq(permutations, "");
+	generate_seq(permutations, total_leg_count, "");
 };
 
 
@@ -67,6 +78,7 @@ void Encoder::encode(const char* message) {
 	size_t size = strlen(message);
 	
 	string enc_msg, permutations, crnt_seq;
+
 	vector<bool*> bits(reg_num+1);
 
 	for (int i = 1; i < reg_num + 1; i++) {
@@ -81,15 +93,14 @@ void Encoder::encode(const char* message) {
 		crnt_seq = sequences.at(s);
 
 		for (int i = 0; i < size; i++) {
-			*xor_leg_ptr = 0; // if the total number of leg is larger than the total number of bits 
-							  // then this needs constraint in order to avoid wrongly pointed pointer
+			*xor_leg_ptr = 0; // xor leg pointer to the sequence i.e. s = "0123", 0 is first leg, 1 is second leg and so on
+
 			bool msg = TO_INT(message[i]);
 			bits.at(0) = &msg;
 
 			// XOR encoding step here
-			
 			for (int g = 0; g < gates.size(); g++) {
-				gates.at(g).empty();
+				gates.at(g).reset();
 				for (int l = 0; l < gates.at(g).leg_num; l++) {
 					gates.at(g).add(*bits.at(TO_INT(crnt_seq.at(*xor_leg_ptr))));
 					(*xor_leg_ptr)++;
@@ -125,15 +136,18 @@ void Encoder::reset() {
 	}
 }
 
-void Encoder::generate_seq(string &str, string sequence) {
-
-	if (sequence.length() == str.length()) {
+void Encoder::generate_seq(string &c, int n, string sequence) {
+	
+	if (sequence.length() >= n) {
+		//System.out.println(start)
+		//cout << sequence << endl;
 		sequences.push_back(sequence);
-		return ;
-	}
 
-	for (int i = 0; i < str.length(); i++) {
-		generate_seq(str, sequence + str.at(i));
+	}
+	else {
+		for (char x : c) {
+			generate_seq(c, n, sequence + x);
+		}
 	}
 }
 

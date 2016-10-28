@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <bitset>
 #include <vector>
 #include "XOR.h"
 
@@ -18,11 +17,11 @@ public:
 	void encode(const char* message);
 	string read_file(const char* filename);
 
-	const int DEFAULT_REGISTER_NUM = 3;
 	void compare();
 
+	vector<string> sequences;
 protected:
-	void generate_seq(string &str, string sequence);
+	void generate_seq(string &c, int n, string sequence);
 	void write_file(const char* filename, const char* message);
 
 private:
@@ -32,7 +31,10 @@ private:
 	bool* registers;
 	int gates_num;
 	int reg_num;
+	int total_leg_count;
 	vector<XOR> gates;
-	vector<string> sequences;
+
+	const int DEFAULT_REGISTER_NUM = 3;
+	const int DEFAULT_GATE_NUM = 2;
 };
 
